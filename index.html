@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Использование нейросетей в музыке — возможности, риски и будущее</title>
+  <meta name="description" content="Одностраничный сайт о том, как нейросети применяются в музыке: создание мелодий, аранжировок, текстов, саунд-дизайна, мастеринга и рекомендаций, а также о преимуществах, ограничениях и этике." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root { color-scheme: dark; }
+    html { scroll-behavior: smooth; }
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(171, 85, 247, .18), transparent 28%),
+        radial-gradient(circle at top right, rgba(34, 211, 238, .14), transparent 24%),
+        radial-gradient(circle at bottom center, rgba(250, 204, 21, .10), transparent 24%),
+        linear-gradient(180deg, #06070b 0%, #0a0d14 42%, #07080c 100%);
+      color: #e5e7eb;
+    }
+    .grid-noise:before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .055;
+      background-image:
+        linear-gradient(rgba(255,255,255,.22) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.22) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,.9), transparent 90%);
+    }
+    .glass {
+      background: rgba(10, 12, 20, 0.56);
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: 0 18px 80px rgba(0,0,0,.38);
+      backdrop-filter: blur(18px);
+    }
+    .accent-text {
+      background: linear-gradient(90deg, #f9a8d4 0%, #c084fc 28%, #67e8f9 58%, #fde68a 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .orbit {
+      position: relative;
+    }
+    .orbit::after {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(255,255,255,.28), rgba(255,255,255,0), rgba(255,255,255,.18));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    .marquee {
+      display: flex;
+      width: max-content;
+      animation: marquee 28s linear infinite;
+    }
+    @keyframes marquee { to { transform: translateX(-50%); } }
+    .tilt {
+      transform: perspective(1100px) rotateX(5deg) rotateY(-8deg);
+    }
+    .soft-shadow { box-shadow: 0 12px 45px rgba(0,0,0,.32); }
+    .section-label {
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      font-size: .72rem;
+      color: rgba(229,231,235,.58);
+    }
+  </style>
+</head>
+<body class="grid-noise font-sans antialiased">
+  <div class="relative overflow-hidden">
+    <header class="sticky top-0 z-50 border-b border-white/10 bg-[#06070b]/75 backdrop-blur-xl">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <a href="#top" class="group flex items-center gap-3">
+          <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/8 ring-1 ring-white/12">
+            <i data-lucide="waveform" class="h-5 w-5 text-cyan-300"></i>
+          </div>
+          <div>
+            <div class="text-sm font-semibold tracking-wide text-white">Нейросети в музыке</div>
+            <div class="text-xs text-white/50">создание • анализ • будущее</div>
+          </div>
+        </a>
+        <nav class="hidden items-center gap-6 text-sm text-white/70 md:flex">
+          <a href="#applications" class="transition hover:text-white">Применение</a>
+          <a href="#benefits" class="transition hover:text-white">Плюсы и ограничения</a>
+          <a href="#ethics" class="transition hover:text-white">Этика</a>
+          <a href="#future" class="transition hover:text-white">Будущее</a>
+        </nav>
+        <a href="#future" class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200">
+          <i data-lucide="sparkles" class="h-4 w-4"></i>
+          Ключевой вывод
+        </a>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="relative">
+        <div class="absolute inset-0 overflow-hidden">
+          <div class="absolute left-1/2 top-0 h-[34rem] w-[34rem]-translate-x-1/2 rounded-full bg-fuchsia-500/12 blur-3xl"></div>
+          <div class="absolute right-[-4rem] top-24 h-72 w-72 rounded-full bg-cyan-400/10 blur-3xl"></div>
+          <div class="absolute left-[-6rem] bottom-0 h-80 w-80 rounded-full bg-amber-300/8 blur-3xl"></div>
+        </div>
+
+        <div class="relative mx-auto max-w-7xl px-4 pb-8 pt-10 sm:px-6 lg:px-8 lg:pt-16">
+          <div class="grid items-center gap-10 lg:grid-cols-[1.08fr_0.92fr]">
+            <div class="max-w-3xl">
+              <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-white/70">
+                <span class="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_22px_rgba(74,222,128,.8)]"></span>
+                Современный взгляд на ИИ в музыкальном творчестве
+              </div>
+              <h1 class="text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
+                Использование <span class="accent-text">нейросетей</span><br>в музыке
+              </h1>
+              <p class="mt-6 max-w-2xl text-base leading-7 text-white/72 sm:text-lg">
+                Нейросети уже помогают музыкантам и продюсерам писать мелодии, собирать аранжировки, генерировать тексты, проектировать саунд-дизайн, ускорять мастеринг и подбирать персональные рекомендации для слушателей.
+              </p>
+              <div class="mt-8 flex flex-wrap gap-3">
+                <a href="#applications" class="inline-flex items-center gap-2 rounded-full bg-cyan-300 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-200">
+                  <i data-lucide="play-circle" class="h-5 w-5"></i>
+                  Смотреть разделы
+                </a>
+                <a href="#ethics" class="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-5 py-3 font-semibold text-white transition hover:bg-white/10">
+                  <i data-lucide="shield-alert" class="h-5 w-5"></i>
+                  Этические вопросы
+                </a>
+              </div>
+
+              <div class="mt-10 grid gap-3 sm:grid-cols-3">
+                <div class="orbit rounded-3xl border border-white/10 bg-white/5 p-4">
+                  <div class="text-2xl font-bold text-white">6</div>
+                  <div class="mt-1 text-sm text-white/64">ключевых задач, где ИИ уже полезен</div>
+                </div>
+                <div class="orbit rounded-3xl border border-white/10 bg-white/5 p-4">
+                  <div class="text-2xl font-bold text-white">24/7</div>
+                  <div class="mt-1 text-sm text-white/64">помощь в генерации идей и вариантов</div>
+                </div>
+                <div class="orbit rounded-3xl border border-white/10 bg-white/5 p-4">
+                  <div class="text-2xl font-bold text-white">1%</div>
+                  <div class="mt-1 text-sm text-white/64">финишного качества требует экспертной доработки</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="relative">
+              <div class="absolute-left-8 top-12 hidden h-24 w-24 rounded-full bg-fuchsia-400/20 blur-2xl lg:block"></div>
+              <div class="absolute-right-6 bottom-10 hidden h-24 w-24 rounded-full bg-cyan-300/20 blur-2xl lg:block"></div>
+              <div class="glass tilt overflow-hidden rounded-[2rem] border border-white/10 p-4 soft-shadow">
+                <img data-ai="generate" data-slot="hero-music-ai" data-prompt="A futuristic music studio scene with glowing neural network lines connecting instruments, synthesizers, mixing console, and abstract sound waves, cinematic lighting, dark elegant atmosphere, high detail, no text" data-ar="4:3" src="https://cdn.landing-page.io/ai-landingpage/html-generate/0f6a8b8b-5a9b-432a-bd00-81c987b5adac/images/hero-music-ai-29e44c4f436e4de3b49bcf0e1903bc8f.png" alt="Футуристическая сцена музыкальной студии с нейросетями" class="h-[340px] w-full rounded-[1.5rem] object-cover sm:h-[420px]">
+                <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div class="rounded-2xl border border-white/10 bg-black/30 p-4">
+                    <div class="flex items-center gap-2 text-sm font-semibold text-white">
+                      <i data-lucide="bot" class="h-4 w-4 text-fuchsia-300"></i>
+                      Генерация
+                    </div>
+                    <p class="mt-2 text-sm leading-6 text-white/65">Идеи мелодий, гармоний и ритмических паттернов за секунды.</p>
+                  </div>
+                  <div class="rounded-2xl border border-white/10 bg-black/30 p-4">
+                    <div class="flex items-center gap-2 text-sm font-semibold text-white">
+                      <i data-lucide="sliders-horizontal" class="h-4 w-4 text-cyan-300"></i>
+                      Продакшн
+                    </div>
+                    <p class="mt-2 text-sm leading-6 text-white/65">Подбор звучания, микс, мастеринг и рекомендации.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-10 overflow-hidden border-y border-white/10 py-4">
+            <div class="marquee gap-8 text-sm text-white/58">
+              <span class="flex items-center gap-2"><i data-lucide="music-4" class="h-4 w-4 text-amber-300"></i>Мелодии</span>
+              <span class="flex items-center gap-2"><i data-lucide="pen-tool" class="h-4 w-4 text-fuchsia-300"></i>Тексты</span>
+              <span class="flex items-center gap-2"><i data-lucide="layers-3" class="h-4 w-4 text-cyan-300"></i>Аранжировки</span>
+              <span class="flex items-center gap-2"><i data-lucide="volume-2" class="h-4 w-4 text-emerald-300"></i>Саунд-дизайн</span>
+              <span class="flex items-center gap-2"><i data-lucide="badge-check" class="h-4 w-4 text-yellow-300"></i>Мастеринг</span>
+              <span class="flex items-center gap-2"><i data-lucide="thumbs-up" class="h-4 w-4 text-sky-300"></i>Рекомендации</span>
+              <span class="flex items-center gap-2"><i data-lucide="music-4" class="h-4 w-4 text-amber-300"></i>Мелодии</span>
+              <span class="flex items-center gap-2"><i data-lucide="pen-tool" class="h-4 w-4 text-fuchsia-300"></i>Тексты</span>
+              <span class="flex items-center gap-2"><i data-lucide="layers-3" class="h-4 w-4 text-cyan-300"></i>Аранжировки</span>
+              <span class="flex items-center gap-2"><i data-lucide="volume-2" class="h-4 w-4 text-emerald-300"></i>Саунд-дизайн</span>
+              <span class="flex items-center gap-2"><i data-lucide="badge-check" class="h-4 w-4 text-yellow-300"></i>Мастеринг</span>
+              <span class="flex items-center gap-2"><i data-lucide="thumbs-up" class="h-4 w-4 text-sky-300"></i>Рекомендации</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="applications" class="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <div class="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <div class="section-label">Применение</div>
+            <h2 class="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">Где нейросети уже работают в музыке</h2>
+          </div>
+          <p class="max-w-2xl text-sm leading-6 text-white/64">
+            Технология не заменяет музыкальный вкус, но заметно ускоряет этапы, на которых важны вариативность, поиск и техническая обработка.
+          </p>
+        </div>
+
+        <div class="grid gap-5 lg:grid-cols-12">
+          <article class="glass orbit lg:col-span-4 rounded-[1.8rem] p-6">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-fuchsia-400/15 text-fuchsia-200">
+              <i data-lucide="music-3" class="h-6 w-6"></i>
+            </div>
+            <h3 class="mt-5 text-xl font-semibold text-white">Создание мелодий</h3>
+            <p class="mt-3 text-sm leading-6 text-white/68">
+              Нейросети предлагают мотивы, фразы и вариации, помогают выйти из творческого тупика и быстро собрать основу трека в нужном жанре.
+            </p>
+          </article>
+
+          <article class="glass orbit lg:col-span-4 rounded-[1.8rem] p-6">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-400/15 text-cyan-200">
+              <i data-lucide="boxes" class="h-6 w-6"></i>
+            </div>
+            <h3 class="mt-5 text-xl font-semibold text-white">Аранжировки и структура</h3>
+            <p class="mt-3 text-sm leading-6 text-white/68">
+              Алгоритмы подсказывают, как распределить куплеты, бриджи, кульминации и плотность инструментов, чтобы композиция звучала цельно.
+            </p>
+          </article>
+
+          <article class="glass orbit lg:col-span-4 rounded-[1.8rem] p-6">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-400/15 text-amber-200">
+              <i data-lucide="pen-line" class="h-6 w-6"></i>
+            </div>
+            <h3 class="mt-5 text-xl font-semibold text-white">Тексты песен</h3>
+            <p class="mt-3 text-sm leading-6 text-white/68">
+              Генеративные модели создают черновики строк, рифм и образов, но лучше всего работают как инструмент редактирования, а не финальный автор.
+            </p>
+          </article>
+
+          <article class="glass orbit lg:col-span-7 rounded-[1.8rem] p-6">
+            <div class="grid gap-6 md:grid-cols-[0.95fr_1.05fr]">
+              <div>
+                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400/15 text-emerald-200">
+                  <i data-lucide="radio-tower" class="h-6 w-6"></i>
+                </div>
+                <h3 class="mt-5 text-xl font-semibold text-white">Саунд-дизайн и эксперименты</h3>
+                <p class="mt-3 text-sm leading-6 text-white/68">
+                  ИИ генерирует необычные тембры, шумовые текстуры, переходы и эффекты. Это особенно полезно в электронной музыке, кино и играх, где важна уникальная атмосфера.
+                </p>
+              </div>
+              <div class="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
+                <img data-ai="generate" data-slot="sound-design" data-prompt="Abstract sound design visualization inspired by electronic music, glowing waveforms, granular textures, modular synth interface elements, dark premium aesthetic, no text" data-ar="1:1" src="https://cdn.landing-page.io/ai-landingpage/html-generate/0f6a8b8b-5a9b-432a-bd00-81c987b5adac/images/sound-design-bb8cde747846459490839a11cb2b4df1.png" alt="Абстрактная визуализация саунд-дизайна" class="h-full w-full rounded-[1.2rem] object-cover">
+              </div>
+            </div>
+          </article>
+
+          <article class="glass orbit lg:col-span-5 rounded-[1.8rem] p-6">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-400/15 text-sky-200">
+              <i data-lucide="badge-plus" class="h-6 w-6"></i>
+            </div>
+            <h3 class="mt-5 text-xl font-semibold text-white">Мастеринг и обработка</h3>
+            <p class="mt-3 text-sm leading-6 text-white/68">
+              Модели анализируют спектр, динамику и баланс, предлагая улучшения по громкости, плотности и частотам. Это ускоряет финальную шлифовку релиза.
+            </p>
+            <div class="mt-5 grid grid-cols-3 gap-3 text-xs text-white/58">
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-3 text-center">Баланс</div>
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-3 text-center">Громкость</div>
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-3 text-center">Чистота</div>
+            </div>
+          </article>
+
+          <article class="glass orbit lg:col-span-12 rounded-[1.8rem] p-6">
+            <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+              <div class="max-w-2xl">
+                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-400/15 text-violet-200">
+                  <i data-lucide="brain-circuit" class="h-6 w-6"></i>
+                </div>
+                <h3 class="mt-5 text-xl font-semibold text-white">Рекомендательные системы</h3>
+                <p class="mt-3 text-sm leading-6 text-white/68">
+                  Музыкальные платформы используют нейросети, чтобы понимать вкус слушателя, подбирать похожие треки, открывать новых артистов и удерживать внимание аудитории.
+                </p>
+              </div>
+              <div class="rounded-[1.5rem] border border-white/10 bg-black/25 p-4 md:w-[420px]">
+                <div class="mb-3 flex items-center justify-between text-sm text-white/70">
+                  <span>Точная рекомендация</span>
+                  <span>98%</span>
+                </div>
+                <div class="h-2 overflow-hidden rounded-full bg-white/10">
+                  <div class="h-full w-[78%] rounded-full bg-gradient-to-r from-fuchsia-400 via-cyan-300 to-amber-300"></div>
+                </div>
+                <div class="mt-4 grid gap-2">
+                  <div class="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm">
+                    <span>Плейлист по настроению</span><i data-lucide="music" class="h-4 w-4 text-cyan-200"></i>
+                  </div>
+                  <div class="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm">
+                    <span>Похожий артист</span><i data-lucide="wand-sparkles" class="h-4 w-4 text-fuchsia-200"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="benefits" class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div class="grid gap-6 lg:grid-cols-2">
+          <div class="glass orbit rounded-[2rem] p-7">
+            <div class="section-label">Преимущества</div>
+            <h2 class="mt-3 text-2xl font-bold text-white">Что даёт технология</h2>
+            <ul class="mt-6 space-y-4">
+              <li class="flex gap-3">
+                <i data-lucide="zap" class="mt-1 h-5 w-5 shrink-0 text-amber-300"></i>
+                <div>
+                  <div class="font-medium text-white">Скорость и масштаб</div>
+                  <p class="text-sm leading-6 text-white/66">Можно быстро генерировать множество вариантов и проверять идеи без долгих циклов ручной работы.</p>
+                </div>
+              </li>
+              <li class="flex gap-3">
+                <i data-lucide="palette" class="mt-1 h-5 w-5 shrink-0 text-fuchsia-300"></i>
+                <div>
+                  <div class="font-medium text-white">Творческая поддержка</div>
+                  <p class="text-sm leading-6 text-white/66">ИИ помогает вдохновиться, найти необычные решения и расширить палитру звучания.</p>
+                </div>
+              </li>
+              <li class="flex gap-3">
+                <i data-lucide="badge-dollar-sign" class="mt-1 h-5 w-5 shrink-0 text-emerald-300"></i>
+                <div>
+                  <div class="font-medium text-white">Снижение затрат</div>
+                  <p class="text-sm leading-6 text-white/66">Для демо, черновиков и быстрых прототипов нейросети сокращают время и бюджет производства.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="glass orbit rounded-[2rem] p-7">
+            <div class="section-label">Ограничения</div>
+            <h2 class="mt-3 text-2xl font-bold text-white">С чем технология пока не справляется</h2>
+            <ul class="mt-6 space-y-4">
+              <li class="flex gap-3">
+                <i data-lucide="triangle-alert" class="mt-1 h-5 w-5 shrink-0 text-rose-300"></i>
+                <div>
+                  <div class="font-medium text-white">Поверхностная оригинальность</div>
+                  <p class="text-sm leading-6 text-white/66">Генерация может быть убедительной, но без художественного отбора часто получается усреднённый результат.</p>
+                </div>
+              </li>
+              <li class="flex gap-3">
+                <i data-lucide="scan-search" class="mt-1 h-5 w-5 shrink-0 text-orange-300"></i>
+                <div>
+                  <div class="font-medium text-white">Ошибки и «галлюцинации»</div>
+                  <p class="text-sm leading-6 text-white/66">Модели способны выдавать нелогичные структуры, слабые рифмы или технически неудачные решения.</p>
+                </div>
+              </li>
+              <li class="flex gap-3">
+                <i data-lucide="gavel" class="mt-1 h-5 w-5 shrink-0 text-sky-300"></i>
+                <div>
+                  <div class="font-medium text-white">Правовые риски</div>
+                  <p class="text-sm leading-6 text-white/66">Вопросы прав на данные обучения, похожести на чужие произведения и авторства остаются нерешёнными.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="ethics" class="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <div class="grid gap-8 lg:grid-cols-[0.88fr_1.12fr]">
+          <div>
+            <div class="section-label">Этика и индустрия</div>
+            <h2 class="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">Почему вопрос не только в технологии</h2>
+            <p class="mt-5 max-w-xl text-sm leading-7 text-white/66">
+              Нейросети меняют саму логику музыкального производства: от того, кто считается автором, до того, как формируется стоимость труда музыканта и продюсера.
+            </p>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-2">
+            <div class="glass orbit rounded-[1.6rem] p-6">
+              <i data-lucide="signature" class="h-6 w-6 text-fuchsia-200"></i>
+              <h3 class="mt-4 font-semibold text-white">Авторство</h3>
+              <p class="mt-2 text-sm leading-6 text-white/66">Если часть песни создана моделью, важно ясно обозначать вклад человека, ИИ и источников данных.</p>
+            </div>
+            <div class="glass orbit rounded-[1.6rem] p-6">
+              <i data-lucide="briefcase-business" class="h-6 w-6 text-cyan-200"></i>
+              <h3 class="mt-4 font-semibold text-white">Профессия музыканта</h3>
+              <p class="mt-2 text-sm leading-6 text-white/66">Роль специалиста смещается к кураторству, редактированию, звуковому вкусу и постановке задач алгоритму.</p>
+            </div>
+            <div class="glass orbit rounded-[1.6rem] p-6">
+              <i data-lucide="file-warning" class="h-6 w-6 text-amber-200"></i>
+              <h3 class="mt-4 font-semibold text-white">Права и лицензии</h3>
+              <p class="mt-2 text-sm leading-6 text-white/66">Индустрии нужны понятные правила по датасетам, сэмплам, генеративным версиям и коммерческому использованию.</p>
+            </div>
+            <div class="glass orbit rounded-[1.6rem] p-6">
+              <i data-lucide="users" class="h-6 w-6 text-emerald-200"></i>
+              <h3 class="mt-4 font-semibold text-white">Доступность творчества</h3>
+              <p class="mt-2 text-sm leading-6 text-white/66">С одной стороны, ИИ демократизирует создание музыки. С другой — усиливает конкуренцию и шум на рынке.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="future" class="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+        <div class="glass orbit rounded-[2.2rem] p-8 sm:p-10">
+          <div class="grid gap-8 lg:grid-cols-[1fr_0.9fr] lg:items-center">
+            <div>
+              <div class="section-label">Будущее</div>
+              <h2 class="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">Будущее нейросетей в музыкальном творчестве — это сотрудничество, а не замена</h2>
+              <p class="mt-5 text-sm leading-7 text-white/67">
+                Наиболее вероятный сценарий — гибридная модель: человек формулирует замысел, выбирает направление, оценивает эмоциональную точность, а нейросеть ускоряет поиск и техническое исполнение. В такой системе ценность музыканта не исчезает, а меняется: возрастает роль вкуса, редакторского решения и художественной ответственности.
+              </p>
+              <div class="mt-6 flex flex-wrap gap-3">
+                <span class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/72">Человек задаёт смысл</span>
+                <span class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/72">ИИ ускоряет процесс</span>
+                <span class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/72">Качество определяет вкус</span>
+              </div>
+            </div>
+
+            <div class="rounded-[1.8rem] border border-white/10 bg-black/30 p-4">
+              <img data-ai="generate" data-slot="future-music" data-prompt="A cinematic future of music creation with a human composer and AI represented as luminous abstract layers around a piano, studio monitors, and floating sound waves, elegant dark environment, premium futuristic mood, no text" data-ar="3:2" src="https://cdn.landing-page.io/ai-landingpage/html-generate/0f6a8b8b-5a9b-432a-bd00-81c987b5adac/images/future-music-a2350db017854c3189896c53ea6b7716.png" alt="Будущее совместного музыкального творчества человека и ИИ" class="h-[280px] w-full rounded-[1.4rem] object-cover sm:h-[340px]">
+              <div class="mt-4 grid gap-3 sm:grid-cols-3">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-center">
+                  <div class="text-lg font-semibold text-white">Скорость</div>
+                  <div class="mt-1 text-xs text-white/60">быстрый поиск идей</div>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-center">
+                  <div class="text-lg font-semibold text-white">Точность</div>
+                  <div class="mt-1 text-xs text-white/60">лучший звук и баланс</div>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-center">
+                  <div class="text-lg font-semibold text-white">Смысл</div>
+                  <div class="mt-1 text-xs text-white/60">всё равно задаёт человек</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="border-t border-white/10 bg-black/25">
+      <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <div class="text-sm font-semibold text-white">Использование нейросетей в музыке</div>
+            <div class="mt-1 text-sm text-white/55">Информативный обзор технологий, которые меняют создание и потребление музыки.</div>
+          </div>
+          <a href="#top" class="inline-flex items-center gap-2 text-sm text-white/70 transition hover:text-white">
+            <i data-lucide="arrow-up" class="h-4 w-4"></i>
+            Наверх
+          </a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
